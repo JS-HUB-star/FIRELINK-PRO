@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>FireLink Pro - Junior Spencer</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FireLink Pro">
+    
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/785/785116.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/785/785116.png">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+    :root { 
+        --bg: #2c3e50; 
+        --phone-bg: #121212; 
+        --accent: #c62828; 
+        --text: #ffffff; 
+        --sec: #1565c0; 
+        --success: #4caf50;
+        --warning: #ff9800;
+    }
+
+    /* Login overlay styling (moved HTML into body) */
+    #loginOverlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #121212;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        box-sizing: border-box;
+    }
+    #loginOverlay img { width: 80px; margin-bottom: 20px; }
+    #loginOverlay h2 { color: #c62828; margin: 0; }
+    #loginOverlay p.hint { color: #666; font-size: 0.7rem; margin-bottom: 30px; }
+    #loginOverlay input { margin-bottom: 15px; border: 1px solid #333; padding: 8px; border-radius: 6px; width: 100%; max-width: 300px; background:#252525; color:#fff; }
+    #loginOverlay input[type="password"] { margin-bottom: 25px; }
+
+    body { 
+        background: var(--bg); 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh; 
+        margin: 0; 
+        font-family: 'Segoe UI', system-ui, sans-serif; 
+        color: var(--text);
+    }
+
+    /* THE PHONE SHAPE ARCHITECTURE */
+    .phone-frame { 
+        width: 375px; 
+        height: 760px; 
+        background: #000; 
+        border: 12px solid #333; 
+        border-radius: 45px; 
+        position: relative; 
+        box-shadow: 0 25px 50px rgba(0,0,0,0.6); 
+        overflow: hidden; 
+        display: flex; 
+        flex-direction: column; 
+    }
+
+    .app-screen { 
+        flex: 1; 
+        background: var(--phone-bg); 
+        padding: 20px; 
+        overflow-y: auto; 
+        scrollbar-width: none; 
+        padding-bottom: 80px; 
+    }
+    .app-screen::-webkit-scrollbar { display: none; }
+
+    .home-indicator { width: 120px; height: 5px; background: #555; border-radius: 10px; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); }
+
+    /* UI COMPONENTS */
+    h1 { color: var(--accent); font-size: 1.5rem; text-align: center; margin: 10px 0 0 0; text-transform: uppercase; letter-spacing: 1px; }
+    .subtitle { text-align: center; font-size: 0.7rem; color: #888; margin-bottom: 20px; }
+    
+    .section { 
+        background: #1e1e1e; 
+        padding: 15px; 
+        border-radius: 15px; 
+        margin-bottom: 15px; 
+        border-left: 4px solid var(--accent); 
+    }
+
+    .label { font-size: 0.65rem; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 8px; }
+    
+    input, select, textarea { 
+        width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; 
+        border: 1px solid #333; background: #252525; color: #fff; 
+        box-sizing: border-box; font-size: 0.9rem; 
+    }
+
+    .big-btn { 
+        background: var(--accent); color: white; border: none; 
+        width: 100%; padding: 16px; border-radius: 12px; 
+        font-size: 0.9rem; font-weight: bold; cursor: pointer; 
+        transition: 0.2s; margin: 10px 0; display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .big-btn:active { transform: scale(0.96); filter: brightness(1.2); }
+
+    /* DIP SWITCHES */
+    .dip-container { display: flex; gap: 5px; justify-content: center; margin-top: 10px; background: #000; padding: 12px; border-radius: 10px; }
+    .switch { width: 22px; height: 45px; border: 1px solid #444; position: relative; cursor: pointer; }
+    .toggle { width: 100%; height: 50%; position: absolute; transition: 0.2s; }
+    .on { background: var(--success); top: 0; }
+    .off { background: #555; bottom: 0; }
+
+    /* SKETCHPAD & SIGNATURE */
+    canvas { background: #fff; border-radius: 8px; display: block; cursor: crosshair; }
+    .sketch-box { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: flex-start; /* Aligns content slightly to the left per request */
+</head>
+<body>
+
+<div id="loginOverlay">
+    <img src="https://cdn-icons-png.flaticon.com/512/785/785116.png" alt="icon">
+    <h2>FIRELINK PRO</h2>
+    <p class="hint">SECURE ENGINEERING ACCESS</p>
+
+    <input type="text" id="userIn" placeholder="Technician ID">
+    <input type="password" id="passIn" placeholder="Secure Pin">
+
+    <button class="big-btn" onclick="attemptLogin()">AUTHORIZE ACCESS</button>
+    <p id="loginError" style="color:#f44336; font-size:0.7rem; margin-top:15px; display:none;">Invalid Credentials. Access Denied.</p>
+</div>
+
+<div class="phone-frame">
+    
+    /* VOICE MODAL */
+    #micStatus { color: #f44336; font-size: 0.7rem; font-weight: bold; display: none; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+    #helpPanel { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:2000; padding:30px; box-sizing:border-box; }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+    <div class="app-screen" id="appBody">
+        <h1>FireLink Pro</h1>
+        <p class="subtitle">ENGINEERING SUITE DEVELOPER • JUNIOR SPENCER</p>
+
+        <div class="section" style="border-left-color: #9c27b0;">
+            <span class="label">Quick Enroll (QR / Barcode)</span>
+            <div id="reader" style="width: 100%; border-radius: 10px; overflow: hidden; display: none;"></div>
+            <button class="big-btn" style="background:#444;" id="scanTrigger" onclick="startScanner()">
+                <span>📷 INITIALIZE SCANNER</span>
+            </button>
+        </div>
+
+        <div class="section" style="border-left-color: var(--warning);">
+            <span class="label">Panel Brand Selection</span>
+            <select id="brandSelect" onchange="updateBrandSpecs()">
+                <option value="Generic">Generic / Other</option>
+                <option value="Apollo">Apollo (XP95/Discovery)</option>
+                <option value="Morley">Morley-IAS (DX/ZX)</option>
+                <option value="Aritech">Aritech (Kilsen)</option>
+                <option value="Eaton">Eaton / Menvier</option>
+                <option value="Shield">Shield / Asenware</option>
+            </select>
+            <div id="brandAdvice" style="font-size: 0.7rem; color: var(--warning); margin-top: 8px; font-style: italic;"></div>
+        </div>
+
+        <div class="section" id="dipSection">
+            <span class="label">Binary DIP Switch Helper</span>
+            <input type="number" id="addrInput" placeholder="Enter Address (1-255)" oninput="syncFromDecimal(this.value)">
+            <div class="dip-container" id="dipBox"></div>
+        </div>
+
+        <div class="section" style="border-left-color: #ff5722;">
+            <div style="display: flex; justify-content: space-between;">
+                <span class="label">Hands-Free Mode</span>
+                <span id="micStatus">● LISTENING</span>
+            </div>
+            <button class="big-btn" style="background:#333; border: 1px solid #ff5722;" onclick="toggleVoice()">🎤 START VOICE LOGGING</button>
+        </div>
+
+        <div class="section">
+            <span class="label">Manual Device Entry</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <input type="number" id="loopIn" placeholder="Loop">
+                <input type="number" id="addrIn" placeholder="Addr">
+            </div>
+            <select id="typeIn">
+                <option>Optical Smoke</option>
+                <option>Multi-Sensor</option>
+                <option>Heat Detector</option>
+                <option>Manual Call Point</option>
+                <option>Sounder/VAD</option>
+            </select>
+            <input type="text" id="locIn" placeholder="Location Detail">
+            <button class="big-btn" onclick="saveDevice()">COMMIT TO LOG</button>
+        </div>
+
+        <div class="section" style="border-left-color: #f44336;">
+            <span class="label">Expert Fault Finder</span>
+            <select id="faultType" onchange="getDiagnostic()">
+                <option value="">-- Select Fault --</option>
+                <option value="Earth">Earth Fault</option>
+                <option value="Double">Double Address</option>
+                <option value="Open">Open Circuit</option>
+                <option value="Missing">Device Missing</option>
+                <option value="Short">Short Circuit</option>
+                <option value="Power">Power Fault</option>
+                <option value="Comms">Communication Error</option>
+                <option value="Ground">Ground Fault</option>
+                <option value="Over Voltage">Over Voltage</option>
+                <option value="Under Voltage">Under Voltage</option>
+                <option value="Reverse Polarity">Reverse Polarity</option>
+                <option value="Intermittent">Intermittent Fault</option>
+                <option value="Drift">Sensor Drift</option>
+                <option value="Contamination">Contamination Issue</option>
+                <option value="Mechanical">Mechanical Fault</option>
+                <option value="Wiring">Wiring Issue</option>
+                <option value="Configuration">Configuration Error</option>
+                <option value="Firmware">Firmware Issue</option>
+                <option value="Hardware">Hardware Issue</option>
+                <option value="Software">Software Issue</option>
+                <option value="Network">Network Issue</option>
+                <option value="Database">Database Issue</option>
+                <option value="Calibration">Calibration Needed</option>
+                <option value="Sensitivity">Sensitivity Issue</option>
+                <option value="Drift">Drift Issue</option>
+                <option value="Alignment">Alignment Issue</option>
+                <option value="Power Supply">Power Supply Issue</option>
+                <option value="Signal Loss">Signal Loss</option>
+                <option value="Interference">Interference Detected</option>
+                <option value="Environmental">Environmental Issue</option>
+                <option value="Maintenance">Maintenance Required</option>
+                <option value="Testing">Testing Required</option>
+                <option value="Replacement">Replacement Needed</option>
+                <option value="Upgrade">Upgrade Recommended</option>
+                <option value="Retirement">Retirement Planning</option>
+                <option value="Obsolescence">Obsolescence Management</option>
+                <option value="Compliance">Compliance Check</option>
+                <option value="Security">Security Assessment</option>
+                <option value="Privacy">Privacy Review</option>
+                <option value="Data Protection">Data Protection Review</option>
+                <option value="Audit">Audit Required</option>
+                <option value="Inspection">Inspection Needed</option>
+                <option value="Testing">Testing Needed</option>
+                <option value="Certification">Certification Needed</option>
+                <option value="Polling">Polling Issue</option>
+                <option value="Timeout">Timeout Error</option>
+                <option value="Reset">Device Reset Needed</option>
+                <option value="Reconfiguration">Reconfiguration Needed</option>
+                <option value="Battery">Battery Issue</option>
+                <option value="Charger">Charger Issue</option>
+                <option value="Backup">Backup Issue</option>
+                <option value="Load">Load Issue</option>
+                <option value="Other">Other Fault</option>
+            </select>
+            <div id="faultGuide" style="margin-top: 10px; font-size: 0.75rem; color: #ffcdd2; background: #b71c1c; padding: 12px; border-radius: 8px; display: none;"></div>
+        </div>
+
+        <div class="section" style="border-left-color: var(--success);">
+            <span class="label">Loop Integrity Sketch</span>
+            <div class="sketch-box">
+                <canvas id="loopCanvas" width="280" height="150" style="margin-left: 15px; border:1px solid #444; background:#000;"></canvas>
+                <button onclick="clearCanvas('loopCanvas')" style="width:280px; margin-left: 15px; background:#333; color:#888; border:none; padding:8px; margin-top:5px; border-radius:5px; font-size:0.6rem;">CLEAR SKETCH</button>
+            </div>
+        </div>
+
+        <div class="section" style="border-left-color: var(--sec);">
+            <span class="label">Battery Load Calculator</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <input type="number" id="stby" placeholder="Standby (A)">
+                <input type="number" id="alrm" placeholder="Alarm (A)">
+            </div>
+            <button onclick="calcBatt()" style="background:var(--sec); color:white; border:none; padding:12px; border-radius:8px; margin-top:10px; width:100%; font-weight:bold;">CALCULATE Ah</button>
+            <div id="battOut" style="text-align:center; font-weight:bold; margin-top:10px; color:var(--sec);"></div>
+        </div>
+
+        <div class="section" style="border-left-color: #9c27b0;">
+            <span class="label">Client Acceptance</span>
+            <canvas id="sigCanvas" width="310" height="100" style="border:1px solid #ccc;"></canvas>
+            <button onclick="clearCanvas('sigCanvas')" style="width:100%; background:#444; color:#fff; border:none; padding:8px; margin-top:5px; border-radius:5px; font-size:0.7rem;">CLEAR SIGNATURE</button>
+        </div>
+
+        <div class="section" style="border:none; background:transparent;">
+            <span class="label">Project History</span>
+            <div id="logList"></div>
+        </div>
+
+        <button class="big-btn" style="background:#ffc107; color:#000;" onclick="generatePDF()">📄 GENERATE SITE PDF</button>
+        <button class="big-btn" style="background:#333;" onclick="toggleHelp()">📖 VIEW SOP MANUAL</button>
+
+        <footer style="text-align:center; margin-top:30px;">
+            <p style="font-size:0.6rem; color:#666;">v4.0 Build • Junior Spencer Systems<br>&copy; 2025 All Rights Reserved</p>
+        </footer>
+    </div>
+    
+    <div id="helpPanel">
+        <button onclick="toggleHelp()" style="background:var(--accent); color:#fff; border:none; padding:10px; border-radius:5px; float:right;">X</button>
+        <h2 style="color:var(--accent);">Engineering SOP</h2>
+        <div style="font-size:0.85rem; line-height:1.7; color:#ddd;">
+            <p><strong>1. Verify:</strong> Confirm panel brand and loop protocol.</p>
+            <p><strong>2. Address:</strong> Use the binary tool for DIP switch units.</p>
+            <p><strong>3. Monitor:</strong> Record GPS and device location descriptions.</p>
+            <p><strong>4. Test:</strong> Perform battery load test and secondary supply check.</p>
+            <p><strong>5. Report:</strong> Capture client signature and sync PDF.</p>
+        </div>
+    </div>
+    <div class="home-indicator"></div>
+</div>
+
+<script>
+    // 1. CHECK LOGIN ON LOAD
+window.addEventListener('DOMContentLoaded', () => {
+    const session = localStorage.getItem('firelink_session');
+    if(session === 'active') {
+        document.getElementById('loginOverlay').style.display = 'none';
+    }
+});
+
+// 2. AUTHENTICATION FUNCTION
+function attemptLogin() {
+    const user = document.getElementById('userIn').value;
+    const pass = document.getElementById('passIn').value;
+
+    // Secure Credentials (You can change these!)
+    if(user === "JUNIOR" && pass === "iTPROJUSP01!") {
+        localStorage.setItem('firelink_session', 'active');
+        document.getElementById('loginOverlay').style.fadeOut(); // Visual touch
+        setTimeout(() => {
+            document.getElementById('loginOverlay').style.display = 'none';
+        }, 300);
+        pulse(true);
+    } else {
+        document.getElementById('loginError').style.display = 'block';
+        pulse(false); // Warning vibration
+    }
+}
+
+// 3. LOGOUT (Optional: Add a button for this)
+function logout() {
+    localStorage.removeItem('firelink_session');
+    location.reload(); 
+}
+
+/* UTILS */
+const pulse = (s=true) => { if("vibrate" in navigator) navigator.vibrate(s?60:[50,50,50]); };
+
+    /* SCANNER LOGIC */
+    function startScanner() {
+        document.getElementById('reader').style.display = 'block';
+        const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        scanner.render((text) => {
+            document.getElementById('addrIn').value = text.replace(/\D/g,'');
+            syncFromDecimal(text.replace(/\D/g,''));
+            pulse();
+            scanner.clear();
+            document.getElementById('reader').style.display = 'none';
+        });
+    }
+
+    /* DIP SWITCH LOGIC */
+    let dipStates = [0,0,0,0,0,0,0,0];
+    function renderSwitches() {
+        document.getElementById('dipBox').innerHTML = dipStates.map((s, i) => `
+            <div class="switch" onclick="toggleSwitch(${i})">
+                <div class="toggle ${s ? 'on' : 'off'}"></div>
+                <span style="font-size:0.5rem; color:#666; position:absolute; bottom:-15px; left:20%;">${Math.pow(2,i)}</span>
+            </div>
+        `).join('');
+    }
+    function toggleSwitch(i) {
+        dipStates[i] = dipStates[i] ? 0 : 1;
+        let t = 0; dipStates.forEach((s, idx) => { if(s) t += Math.pow(2, idx); });
+        document.getElementById('addrInput').value = t;
+        document.getElementById('addrIn').value = t;
+        renderSwitches(); pulse();
+    }
+    function syncFromDecimal(v) {
+        let val = parseInt(v) || 0;
+        document.getElementById('addrIn').value = val;
+        dipStates = dipStates.map((_, i) => (val & Math.pow(2, i)) ? 1 : 0);
+        renderSwitches();
+    }
+
+    /* BRAND LOGIC */
+    function updateBrandSpecs() {
+        const b = document.getElementById('brandSelect').value;
+        const a = document.getElementById('brandAdvice');
+        document.getElementById('dipSection').style.display = (b === "Morley" || b === "Eaton") ? "none" : "block";
+        a.innerText = b === "Apollo" ? "XP95/Discovery protocol selected." : "Generic addressable mode active.";
+        pulse();
+    }
+
+    /* CANVAS SETUP */
+    function setupCanvas(id, color) {
+        const c = document.getElementById(id); const ctx = c.getContext('2d');
+        let draw = false; ctx.strokeStyle = color; ctx.lineWidth = 2;
+        const getP = (e) => { const r = c.getBoundingClientRect(); return { x: (e.touches?e.touches[0].clientX:e.clientX)-r.left, y: (e.touches?e.touches[0].clientY:e.clientY)-r.top }; };
+        c.addEventListener('mousedown', (e)=>{ draw=true; ctx.beginPath(); const p=getP(e); ctx.moveTo(p.x,p.y); });
+        c.addEventListener('mousemove', (e)=>{ if(!draw)return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); });
+        window.addEventListener('mouseup', ()=>draw=false);
+        c.addEventListener('touchstart', (e)=>{ e.preventDefault(); draw=true; ctx.beginPath(); const p=getP(e); ctx.moveTo(p.x,p.y); });
+        c.addEventListener('touchmove', (e)=>{ e.preventDefault(); if(!draw)return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); });
+    }
+    function clearCanvas(id) { const c = document.getElementById(id); c.getContext('2d').clearRect(0,0,c.width,c.height); }
+
+    /* DIAGNOSTICS */
+    function getDiagnostic() {
+        const f = document.getElementById('faultType').value;
+        const g = document.getElementById('faultGuide');
+        if(!f) { g.style.display="none"; return; }
+        g.style.display="block";
+        const msg = { "Earth":"Check for moisture in bases or pinched shield wiring.", "Double":"Two heads sharing ID. Check DIP settings.", "Open":"Loop break detected. Check continuity at panel.", "Missing":"Comms failure. Check device seating." };
+        g.innerHTML = `<strong>ADVICE:</strong> ${msg[f]}`;
+    }
+
+    /* LOGGING */
+    function saveDevice() {
+        const l = document.getElementById('loopIn').value;
+        const a = document.getElementById('addrIn').value;
+        if(!a) return alert("Missing Address");
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerHTML = `<span><strong>L${l}:A${a}</strong> - ${document.getElementById('typeIn').value}<br><small>${document.getElementById('locIn').value}</small></span><span style="color:var(--success)">OK</span>`;
+        document.getElementById('logList').prepend(entry);
+        pulse();
+    }
+
+    /* CALC */
+    function calcBatt() {
+        const s = parseFloat(document.getElementById('stby').value) || 0;
+        const a = parseFloat(document.getElementById('alrm').value) || 0;
+        document.getElementById('battOut').innerText = `Req: ${(((s*24)+(a*0.5))*1.25).toFixed(2)} Ah`;
+        pulse();
+    }
+
+    /* VOICE */
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = Speech ? new Speech() : null;
+    if(rec) {
+        rec.continuous = true;
+        rec.onresult = (e) => {
+            const t = e.results[e.results.length-1][0].transcript.toLowerCase();
+            if(t.includes("address")) { const n = t.match(/\d+/); if(n) syncFromDecimal(n[0]); }
+            if(t.includes("save")) saveDevice();
+        };
+    }
+    function toggleVoice() {
+        const m = document.getElementById('micStatus');
+        if(m.style.display==="none") { rec.start(); m.style.display="block"; }
+        else { rec.stop(); m.style.display="none"; }
+    }
+
+    function toggleHelp() { const p = document.getElementById('helpPanel'); p.style.display = p.style.display==="block"?"none":"block"; }
+
+    function generatePDF() {
+        const element = document.createElement('div');
+        element.style.padding = "20px";
+        element.innerHTML = `<h1 style="color:#c62828">FIRELINK PRO REPORT</h1><p>Developer: Junior Spencer</p><p>Date: ${new Date().toLocaleDateString()}</p><hr>${document.getElementById('logList').innerHTML}`;
+        html2pdf().from(element).save('FireLink_Report.pdf');
+    }
+
+    window.onload = () => {
+        renderSwitches();
+        setupCanvas('loopCanvas', '#4caf50');
+        setupCanvas('sigCanvas', '#000');
+    };
+</script>
+
+</body>
+</html>
