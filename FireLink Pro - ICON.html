@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>FireLink Pro - Junior Spencer</title>
@@ -16,147 +15,113 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 
-<style>
-    :root { 
-        --bg: #2c3e50; 
-        --phone-bg: #121212; 
-        --accent: #c62828; 
-        --text: #ffffff; 
-        --sec: #1565c0; 
-        --success: #4caf50;
-        --warning: #ff9800;
-    }
+    <style>
+        :root { 
+            --bg: #2c3e50; 
+            --phone-bg: #121212; 
+            --accent: #c62828; 
+            --text: #ffffff; 
+            --sec: #1565c0; 
+            --success: #4caf50;
+            --warning: #ff9800;
+        }
+        
+        body { 
+            background: var(--bg); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            color: var(--text);
+        }
 
-    /* Login overlay styling (moved HTML into body) */
-    #loginOverlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #121212;
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 30px;
-        box-sizing: border-box;
-    }
-    #loginOverlay img { width: 80px; margin-bottom: 20px; }
-    #loginOverlay h2 { color: #c62828; margin: 0; }
-    #loginOverlay p.hint { color: #666; font-size: 0.7rem; margin-bottom: 30px; }
-    #loginOverlay input { margin-bottom: 15px; border: 1px solid #333; padding: 8px; border-radius: 6px; width: 100%; max-width: 300px; background:#252525; color:#fff; }
-    #loginOverlay input[type="password"] { margin-bottom: 25px; }
+        /* THE PHONE SHAPE ARCHITECTURE */
+        .phone-frame { 
+            width: 375px; 
+            height: 760px; 
+            background: #000; 
+            border: 12px solid #333; 
+            border-radius: 45px; 
+            position: relative; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6); 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+        }
 
-    body { 
-        background: var(--bg); 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        min-height: 100vh; 
-        margin: 0; 
-        font-family: 'Segoe UI', system-ui, sans-serif; 
-        color: var(--text);
-    }
+        .app-screen { 
+            flex: 1; 
+            background: var(--phone-bg); 
+            padding: 20px; 
+            overflow-y: auto; 
+            scrollbar-width: none; 
+            padding-bottom: 80px; 
+        }
+        .app-screen::-webkit-scrollbar { display: none; }
 
-    /* THE PHONE SHAPE ARCHITECTURE */
-    .phone-frame { 
-        width: 375px; 
-        height: 760px; 
-        background: #000; 
-        border: 12px solid #333; 
-        border-radius: 45px; 
-        position: relative; 
-        box-shadow: 0 25px 50px rgba(0,0,0,0.6); 
-        overflow: hidden; 
-        display: flex; 
-        flex-direction: column; 
-    }
+        .home-indicator { width: 120px; height: 5px; background: #555; border-radius: 10px; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); }
 
-    .app-screen { 
-        flex: 1; 
-        background: var(--phone-bg); 
-        padding: 20px; 
-        overflow-y: auto; 
-        scrollbar-width: none; 
-        padding-bottom: 80px; 
-    }
-    .app-screen::-webkit-scrollbar { display: none; }
+        /* UI COMPONENTS */
+        h1 { color: var(--accent); font-size: 1.5rem; text-align: center; margin: 10px 0 0 0; text-transform: uppercase; letter-spacing: 1px; }
+        .subtitle { text-align: center; font-size: 0.7rem; color: #888; margin-bottom: 20px; }
+        
+        .section { 
+            background: #1e1e1e; 
+            padding: 15px; 
+            border-radius: 15px; 
+            margin-bottom: 15px; 
+            border-left: 4px solid var(--accent); 
+        }
 
-    .home-indicator { width: 120px; height: 5px; background: #555; border-radius: 10px; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); }
+        .label { font-size: 0.65rem; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 8px; }
+        
+        input, select, textarea { 
+            width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; 
+            border: 1px solid #333; background: #252525; color: #fff; 
+            box-sizing: border-box; font-size: 0.9rem; 
+        }
 
-    /* UI COMPONENTS */
-    h1 { color: var(--accent); font-size: 1.5rem; text-align: center; margin: 10px 0 0 0; text-transform: uppercase; letter-spacing: 1px; }
-    .subtitle { text-align: center; font-size: 0.7rem; color: #888; margin-bottom: 20px; }
-    
-    .section { 
-        background: #1e1e1e; 
-        padding: 15px; 
-        border-radius: 15px; 
-        margin-bottom: 15px; 
-        border-left: 4px solid var(--accent); 
-    }
+        .big-btn { 
+            background: var(--accent); color: white; border: none; 
+            width: 100%; padding: 16px; border-radius: 12px; 
+            font-size: 0.9rem; font-weight: bold; cursor: pointer; 
+            transition: 0.2s; margin: 10px 0; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .big-btn:active { transform: scale(0.96); filter: brightness(1.2); }
 
-    .label { font-size: 0.65rem; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 8px; }
-    
-    input, select, textarea { 
-        width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; 
-        border: 1px solid #333; background: #252525; color: #fff; 
-        box-sizing: border-box; font-size: 0.9rem; 
-    }
+        /* DIP SWITCHES */
+        .dip-container { display: flex; gap: 5px; justify-content: center; margin-top: 10px; background: #000; padding: 12px; border-radius: 10px; }
+        .switch { width: 22px; height: 45px; border: 1px solid #444; position: relative; cursor: pointer; }
+        .toggle { width: 100%; height: 50%; position: absolute; transition: 0.2s; }
+        .on { background: var(--success); top: 0; }
+        .off { background: #555; bottom: 0; }
 
-    .big-btn { 
-        background: var(--accent); color: white; border: none; 
-        width: 100%; padding: 16px; border-radius: 12px; 
-        font-size: 0.9rem; font-weight: bold; cursor: pointer; 
-        transition: 0.2s; margin: 10px 0; display: flex; align-items: center; justify-content: center; gap: 10px;
-    }
-    .big-btn:active { transform: scale(0.96); filter: brightness(1.2); }
+        /* SKETCHPAD & SIGNATURE */
+        canvas { background: #fff; border-radius: 8px; display: block; cursor: crosshair; }
+        .sketch-box { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-start; /* Aligns content slightly to the left per request */
+            padding-left: 15px;
+        }
 
-    /* DIP SWITCHES */
-    .dip-container { display: flex; gap: 5px; justify-content: center; margin-top: 10px; background: #000; padding: 12px; border-radius: 10px; }
-    .switch { width: 22px; height: 45px; border: 1px solid #444; position: relative; cursor: pointer; }
-    .toggle { width: 100%; height: 50%; position: absolute; transition: 0.2s; }
-    .on { background: var(--success); top: 0; }
-    .off { background: #555; bottom: 0; }
+        .log-entry { font-size: 0.8rem; padding: 12px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; margin-top: 5px; border-radius: 8px; }
+        
+        /* VOICE MODAL */
+        #micStatus { color: #f44336; font-size: 0.7rem; font-weight: bold; display: none; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-    /* SKETCHPAD & SIGNATURE */
-    canvas { background: #fff; border-radius: 8px; display: block; cursor: crosshair; }
-    .sketch-box { 
-        display: flex; 
-        flex-direction: column; 
-        align-items: flex-start; /* Aligns content slightly to the left per request */
-</head>
-<body>
-
-<div id="loginOverlay">
-    <img src="https://cdn-icons-png.flaticon.com/512/785/785116.png" alt="icon">
-    <h2>FIRELINK PRO</h2>
-    <p class="hint">SECURE ENGINEERING ACCESS</p>
-
-    <input type="text" id="userIn" placeholder="Technician ID">
-    <input type="password" id="passIn" placeholder="Secure Pin">
-
-    <button class="big-btn" onclick="attemptLogin()">AUTHORIZE ACCESS</button>
-    <p id="loginError" style="color:#f44336; font-size:0.7rem; margin-top:15px; display:none;">Invalid Credentials. Access Denied.</p>
-</div>
-
-<div class="phone-frame">
-    
-    /* VOICE MODAL */
-    #micStatus { color: #f44336; font-size: 0.7rem; font-weight: bold; display: none; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-
-    #helpPanel { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:2000; padding:30px; box-sizing:border-box; }
-</style>
+        #helpPanel { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:2000; padding:30px; box-sizing:border-box; }
+    </style>
 </head>
 <body>
 
 <div class="phone-frame">
     <div class="app-screen" id="appBody">
         <h1>FireLink Pro</h1>
-        <p class="subtitle">ENGINEERING SUITE DEVELOPER • JUNIOR SPENCER</p>
+        <p class="subtitle">ENGINEERING SUITE • JUNIOR SPENCER</p>
 
         <div class="section" style="border-left-color: #9c27b0;">
             <span class="label">Quick Enroll (QR / Barcode)</span>
@@ -296,55 +261,6 @@
                 <option value="Double">Double Address</option>
                 <option value="Open">Open Circuit</option>
                 <option value="Missing">Device Missing</option>
-                <option value="Short">Short Circuit</option>
-                <option value="Power">Power Fault</option>
-                <option value="Comms">Communication Error</option>
-                <option value="Ground">Ground Fault</option>
-                <option value="Over Voltage">Over Voltage</option>
-                <option value="Under Voltage">Under Voltage</option>
-                <option value="Reverse Polarity">Reverse Polarity</option>
-                <option value="Intermittent">Intermittent Fault</option>
-                <option value="Drift">Sensor Drift</option>
-                <option value="Contamination">Contamination Issue</option>
-                <option value="Mechanical">Mechanical Fault</option>
-                <option value="Wiring">Wiring Issue</option>
-                <option value="Configuration">Configuration Error</option>
-                <option value="Firmware">Firmware Issue</option>
-                <option value="Hardware">Hardware Issue</option>
-                <option value="Software">Software Issue</option>
-                <option value="Network">Network Issue</option>
-                <option value="Database">Database Issue</option>
-                <option value="Calibration">Calibration Needed</option>
-                <option value="Sensitivity">Sensitivity Issue</option>
-                <option value="Drift">Drift Issue</option>
-                <option value="Alignment">Alignment Issue</option>
-                <option value="Power Supply">Power Supply Issue</option>
-                <option value="Signal Loss">Signal Loss</option>
-                <option value="Interference">Interference Detected</option>
-                <option value="Environmental">Environmental Issue</option>
-                <option value="Maintenance">Maintenance Required</option>
-                <option value="Testing">Testing Required</option>
-                <option value="Replacement">Replacement Needed</option>
-                <option value="Upgrade">Upgrade Recommended</option>
-                <option value="Retirement">Retirement Planning</option>
-                <option value="Obsolescence">Obsolescence Management</option>
-                <option value="Compliance">Compliance Check</option>
-                <option value="Security">Security Assessment</option>
-                <option value="Privacy">Privacy Review</option>
-                <option value="Data Protection">Data Protection Review</option>
-                <option value="Audit">Audit Required</option>
-                <option value="Inspection">Inspection Needed</option>
-                <option value="Testing">Testing Needed</option>
-                <option value="Certification">Certification Needed</option>
-                <option value="Polling">Polling Issue</option>
-                <option value="Timeout">Timeout Error</option>
-                <option value="Reset">Device Reset Needed</option>
-                <option value="Reconfiguration">Reconfiguration Needed</option>
-                <option value="Battery">Battery Issue</option>
-                <option value="Charger">Charger Issue</option>
-                <option value="Backup">Backup Issue</option>
-                <option value="Load">Load Issue</option>
-                <option value="Other">Other Fault</option>
             </select>
             <div id="faultGuide" style="margin-top: 10px; font-size: 0.75rem; color: #ffcdd2; background: #b71c1c; padding: 12px; border-radius: 8px; display: none;"></div>
         </div>
@@ -401,41 +317,8 @@
 </div>
 
 <script>
-    // 1. CHECK LOGIN ON LOAD
-window.addEventListener('DOMContentLoaded', () => {
-    const session = localStorage.getItem('firelink_session');
-    if(session === 'active') {
-        document.getElementById('loginOverlay').style.display = 'none';
-    }
-});
-
-// 2. AUTHENTICATION FUNCTION
-function attemptLogin() {
-    const user = document.getElementById('userIn').value;
-    const pass = document.getElementById('passIn').value;
-
-    // Secure Credentials (You can change these!)
-    if(user === "JUNIOR" && pass === "iTPROJUSP01!") {
-        localStorage.setItem('firelink_session', 'active');
-        document.getElementById('loginOverlay').style.fadeOut(); // Visual touch
-        setTimeout(() => {
-            document.getElementById('loginOverlay').style.display = 'none';
-        }, 300);
-        pulse(true);
-    } else {
-        document.getElementById('loginError').style.display = 'block';
-        pulse(false); // Warning vibration
-    }
-}
-
-// 3. LOGOUT (Optional: Add a button for this)
-function logout() {
-    localStorage.removeItem('firelink_session');
-    location.reload(); 
-}
-
-/* UTILS */
-const pulse = (s=true) => { if("vibrate" in navigator) navigator.vibrate(s?60:[50,50,50]); };
+    /* UTILS */
+    const pulse = (s=true) => { if("vibrate" in navigator) navigator.vibrate(s?60:[50,50,50]); };
 
     /* SCANNER LOGIC */
     function startScanner() {
@@ -548,7 +431,7 @@ const pulse = (s=true) => { if("vibrate" in navigator) navigator.vibrate(s?60:[5
     function generatePDF() {
         const element = document.createElement('div');
         element.style.padding = "20px";
-        element.innerHTML = `<h1 style="color:#c62828">FIRELINK PRO REPORT</h1><p>Developer: Junior Spencer</p><p>Date: ${new Date().toLocaleDateString()}</p><hr>${document.getElementById('logList').innerHTML}`;
+        element.innerHTML = `<h1 style="color:#c62828">FIRELINK PRO REPORT</h1><p>Engineer: Junior Spencer</p><p>Date: ${new Date().toLocaleDateString()}</p><hr>${document.getElementById('logList').innerHTML}`;
         html2pdf().from(element).save('FireLink_Report.pdf');
     }
 
@@ -558,7 +441,7 @@ const pulse = (s=true) => { if("vibrate" in navigator) navigator.vibrate(s?60:[5
         setupCanvas('sigCanvas', '#000');
     };
 </script>
-
 </body>
-
 </html>
+
+
