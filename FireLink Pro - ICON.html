@@ -175,6 +175,82 @@
                 <option value="Aritech">Aritech (Kilsen)</option>
                 <option value="Eaton">Eaton / Menvier</option>
                 <option value="Shield">Shield / Asenware</option>
+                <option value="NFW-">NFW Systems</option>
+                <option value="Advanced">Advanced Detection</option>
+                <option value="Hochiki">Hochiki</option>
+                <option value="Notifier">Notifier</option>
+                <option value="Siemens">Siemens</option>
+                <option value="Tyco">Tyco</option>
+                <option value="Vimpex">Vimpex</option>
+                <option value="Xtralis">Xtralis</option>
+                <option value="Ziton">Ziton</option>
+                <option value="lifecontrol">LifeControl</option>
+                <option value="Menvier">Menvier</option>
+                <option value="Asenware">Asenware</option>
+                <option value="DX">Morley DX</option>
+                <option value="ZX">Morley ZX</option>
+                <option value="Kilsen">Aritech/Kilsen</option>
+                <option value="bosch">Bosch</option>
+                <option value="caddx">Caddx</option>
+                <option value="daitem">Daitem</option>
+                <option value="edwards">Edwards</option>
+                <option value="fike">Fike</option>
+                <option value="gent">Gent</option>
+                <option value="honeywell">Honeywell</option>
+                <option value="interlogix">Interlogix</option>
+                <option value="johnson">Johnson Controls</option>
+                <option value="kidde">Kidde</option>
+                <option value="lars">Lars</option>
+                <option value="mircom">Mircom</option>
+                <option value="napco">Napco</option>
+                <option value="notifier">Notifier</option>
+                <option value="paradox">Paradox</option>
+                <option value="quell">Quell</option>
+                <option value="robertson">Robertson</option>
+                <option value="satel">Satel</option>
+                <option value="texecom">Texecom</option>
+                <option value="urmet">Urmet</option>
+                <option value="veris">Veris</option>
+                <option value="watchguard">WatchGuard</option>
+                <option value="xtralis">Xtralis</option>
+                <option value="yokogawa">Yokogawa</option>
+                <option value="pyran">Pyran</option>
+                <option value="pyramid">Pyramid</option>
+                <option value="pyro">Pyro</option>
+                <option value="radionics">Radionics</option>
+                <option value="ctech">C-Tech</option>
+                <option value="dicon">Dicon</option>
+                <option value="eclipse">Eclipse</option>
+                <option value="firelite">Fire-Lite</option>
+                <option value="gill">Gill</option>
+                <option value="hills">Hills</option>
+                <option value="i-on">I-ON</option>
+                <option value="interlogix">Interlogix</option>
+                <option value="silentknight">Silent Knight</option>
+                <option value="simplex">Simplex</option>
+                <option value="sloane">Sloane</option>
+                <option value="spectrum">Spectrum</option>
+                <option value="sps">SPS</option>
+                <option value="stent">Stent</option>
+                <option value="systemsensor">System Sensor</option>
+                <option value="tandem">Tandem</option>
+                <option value="vanderbilt">Vanderbilt</option>
+                <option value="veritech">Veritech</option>
+                <option value="vision">Vision</option>
+                <option value="visonic">Visonic</option>
+                <option value="vitek">Vitek</option>
+                <option value="potter">Potter</option>
+                <option value="GST">GST</option>
+                <option value="context">Context</option>
+                <option value="cooper">Cooper</option>
+                <option value="bosch">Bosch</option>
+                <option value="JB-QB-M">JB-QB-M</option>
+                <option value="JB-QB-D">JB-QB-D</option>
+                <option value="JB-QB-QMK">JB-QB-QMK</option>
+                <option value="menvier MF200">Menvier MF200</option>
+                <option value="menvier MF300">Menvier MF300</option>
+                <option value=""
+
             </select>
             <div id="brandAdvice" style="font-size: 0.7rem; color: var(--warning); margin-top: 8px; font-style: italic;"></div>
         </div>
@@ -205,6 +281,8 @@
                 <option>Heat Detector</option>
                 <option>Manual Call Point</option>
                 <option>Sounder/VAD</option>
+                <option>Input/Output Module</option>
+                <option>Other Device</option>
             </select>
             <input type="text" id="locIn" placeholder="Location Detail">
             <button class="big-btn" onclick="saveDevice()">COMMIT TO LOG</button>
@@ -424,7 +502,7 @@ const pulse = (s=true) => { if("vibrate" in navigator) navigator.vibrate(s?60:[5
         const g = document.getElementById('faultGuide');
         if(!f) { g.style.display="none"; return; }
         g.style.display="block";
-        const msg = { "Earth":"Check for moisture in bases or pinched shield wiring.", "Double":"Two heads sharing ID. Check DIP settings.", "Open":"Loop break detected. Check continuity at panel.", "Missing":"Comms failure. Check device seating." };
+        const msg = { "Earth":"Check for moisture in bases or pinched shield wiring.", "Double":"Two heads sharing ID. Check DIP settings.", "Open":"Loop break detected. Check continuity at panel.", "Missing":"Comms failure. Check device seating.", "Short":"Possible short circuit. Inspect wiring and devices.", "Power":"Device not receiving power. Check loop voltage.", "Comms":"Communication error. Verify panel compatibility.", "Ground":"Ground fault detected. Check grounding connections.", "Over Voltage":"Voltage above spec. Check power supply.", "Under Voltage":"Voltage below spec. Check battery and supply.", "Reverse Polarity":"Polarity issue. Verify wiring orientation.", "Intermittent":"Intermittent fault. Monitor for patterns.", "Drift":"Sensor drift detected. Consider recalibration.", "Contamination":"Device contamination likely. Inspect and clean.", "Mechanical":"Mechanical fault. Check for physical damage.", "Wiring":"Wiring issue suspected. Inspect all connections.", "Configuration":"Configuration error. Verify device settings.", "Firmware":"Firmware issue detected. Check for updates.", "Hardware":"Hardware failure likely. Consider replacement.", "Software":"Software issue detected. Restart panel and check logs.", "Network":"Network communication issue. Check panel connectivity.", "Database":"Database error detected. Verify panel memory integrity.", "Calibration":"Calibration needed. Follow manufacturer procedures.", "Sensitivity":"Sensitivity issue detected. Adjust settings as needed.", "Alignment":"Alignment issue detected. Ensure proper device orientation.", "Power Supply":"Power supply issue detected. Check backup systems.", "Signal Loss":"Signal loss detected. Inspect for interference or damage.", "Interference":"Interference detected. Identify and mitigate sources.", "Environmental":"Environmental issue affecting performance. Assess conditions.", "Maintenance":"Maintenance required soon. Schedule service visit.", "Testing":"Testing required soon. Plan for routine checks.", "Replacement":"Replacement needed soon. Order parts as necessary.", "Upgrade":"Upgrade recommended for improved performance or compatibility.", "Retirement":"Retirement planning advised due to obsolescence or wear.", "Obsolescence":"Obsolescence management needed due to discontinued support or parts availability issues.", "Compliance":"Compliance check recommended to ensure adherence to current standards and regulations.", "Security":"Security assessment advised to identify and mitigate potential vulnerabilities in the system.", "Privacy":"Privacy review recommended to ensure proper handling of sensitive data and compliance with relevant laws.", "Data Protection":"Data protection review needed to safeguard against data breaches and ensure secure storage of information.", "Audit":"Audit required to verify system integrity, performance, and adherence to protocols.", "Inspection":"Inspection needed to assess physical condition and identify any issues requiring attention.", "Testing":"Testing needed to validate functionality and performance of devices or systems.", "Certification":"Certification needed to confirm compliance with industry standards and regulations.", "Polling":"Polling issue detected. Check device responsiveness and panel communication.", "Timeout":"Timeout error detected. Verify device response times and panel settings.", "Reset":"Device reset needed. Follow manufacturer instructions for safe reset procedures.", "Reconfiguration":"Reconfiguration needed. Review device settings and adjust as necessary.", "Battery":"Battery issue detected. Check battery health and replace if necessary.", "Charger":"Charger issue detected. Verify charger functionality and connections.", "Backup":"Backup issue detected. Ensure backup systems are operational and properly configured.", "Load":"Load issue detected. Assess power requirements and distribution on the loop.", "Other":"General fault detected. Further investigation required to determine cause." Charger issue detected. Verify charger functionality and connections.", "Backup":"Backup issue detected. Ensure backup systems are operational and properly configured.", "Load":"Load issue detected. Assess power requirements and distribution on the loop.", "Other":"General fault detected. Further investigation required to determine cause.", audit:"Audit required to verify system integrity, performance, and adherence to protocols.", inspection:"Inspection needed to assess physical condition and identify any issues requiring attention.", testing:"Testing needed to validate functionality and performance of devices or systems.", certification:"Certification needed to confirm compliance with industry standards and regulations.", polling:"Polling issue detected. Check device responsiveness and panel communication.", timeout:"Timeout error detected. Verify device response times and panel settings.", reset:"Device reset needed. Follow manufacturer instructions for safe reset procedures.", reconfiguration:"Reconfiguration needed. Review device settings and adjust as necessary.", battery:"Battery issue detected. Check battery health and replace if necessary.", charger:"Charger issue detected. Verify charger functionality and connections.", backup:"Backup issue detected. Ensure backup systems are operational and properly configured.", load:"Load issue detected. Assess power requirements and distribution on the loop.", other:"General fault detected. Further investigation required to determine cause.", power fault:"Device not receiving power. Check loop voltage and power supply.", comms error:"Communication error. Verify panel compatibility and device seating.", ground fault:"Ground fault detected. Check grounding connections and device integrity.", over voltage:"Voltage above spec. Check power supply and device ratings.", under voltage:"Voltage below spec. Check battery health and power supply.", reverse polarity:"Polarity issue. Verify wiring orientation and device specifications.", intermittent:"Intermittent fault. Monitor for patterns and inspect devices.", drift:"Sensor drift detected. Consider recalibration or replacement.", contamination:"Device contamination likely. Inspect and clean devices as needed.", mechanical fault:"Mechanical fault detected. Check for physical damage or obstructions.", wiring issue:"Wiring issue suspected. Inspect all connections for integrity and proper routing.", configuration error:"Configuration error detected. Verify device settings and panel programming.", firmware issue:"Firmware issue detected. Check for updates and apply as necessary.", hardware issue:"Hardware failure likely. Consider replacement of affected devices.", software issue:"Software issue detected. Restart panel and check logs for details.", network issue:"Network communication issue detected. Check panel connectivity and network settings.", database issue:"Database error detected. Verify panel memory integrity and perform maintenance if needed.", calibration needed:"Calibration needed for accurate sensor performance. Follow manufacturer procedures for calibration." };
         g.innerHTML = `<strong>ADVICE:</strong> ${msg[f]}`;
     }
 
